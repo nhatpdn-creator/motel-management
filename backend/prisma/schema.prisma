@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -12,4 +6,147 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model admins {
+  id             Int    @id @default(autoincrement())
+  admin_uuid     String @db.VarChar(64)
+  admin_login_id String @db.VarChar(64)
+  email          String @unique @db.VarChar(256)
+}
+
+model apartment_rooms {
+  id                   Int                    @id @default(autoincrement())
+  apartment_id         Int
+  room_number          String                 @db.VarChar(45)
+  default_price        BigInt
+  max_tenant           Int
+  apartments           apartments             @relation(fields: [apartment_id], references: [id])
+  electricity_usages   electricity_usages[]
+  room_fee_collections room_fee_collections[]
+  tenant_contracts     tenant_contracts[]
+  water_usages         water_usages[]
+}
+
+model apartments {
+  id              Int               @id @default(autoincrement())
+  user_id         Int
+  name            String            @db.VarChar(45)
+  province_id     String?           @db.VarChar(256)
+  district_id     String?           @db.VarChar(256)
+  ward_id         String?           @db.VarChar(256)
+  address         String            @db.VarChar(256)
+  apartment_rooms apartment_rooms[]
+  users           users             @relation(fields: [user_id], references: [id])
+}
+
+model contract_monthly_costs {
+  id                 Int              @id @default(autoincrement())
+  tenant_contract_id Int
+  monthly_cost_id    Int
+  pay_type           Int
+  price              BigInt
+  monthly_costs      monthly_costs    @relation(fields: [monthly_cost_id], references: [id])
+  tenant_contracts   tenant_contracts @relation(fields: [tenant_contract_id], references: [id])
+}
+
+model electricity_usages {
+  id                Int             @id @default(autoincrement())
+  apartment_room_id Int
+  usage_number      Int
+  input_date        DateTime
+  apartment_rooms   apartment_rooms @relation(fields: [apartment_room_id], references: [id])
+}
+
+model monthly_costs {
+  id                     Int                      @id @default(autoincrement())
+  name                   String                   @db.VarChar(45)
+  contract_monthly_costs contract_monthly_costs[]
+}
+
+model prefectures {
+  id            Int     @id @default(autoincrement())
+  ward_id       String? @db.VarChar(256)
+  ward_name     String? @db.VarChar(256)
+  ward_name_en  String? @db.VarChar(256)
+  ward_level    String? @db.VarChar(256)
+  district_id   String? @db.VarChar(256)
+  district_name String? @db.VarChar(256)
+  province_id   String? @db.VarChar(256)
+  province_name String? @db.VarChar(256)
+}
+
+model room_fee_collection_histories {
+  id                     Int                  @id @default(autoincrement())
+  room_fee_collection_id Int
+  paid_date              DateTime
+  price                  BigInt
+  room_fee_collections   room_fee_collections @relation(fields: [room_fee_collection_id], references: [id])
+}
+
+model room_fee_collections {
+  id                            Int                             @id @default(autoincrement())
+  apartment_room_id             Int
+  electricity_number_before     Int?
+  electricity_number_after      Int?
+  water_number_before           Int?
+  water_number_after            Int?
+  charge_date                   DateTime
+  total_debt                    BigInt
+  total_price                   BigInt
+  total_paid                    BigInt
+  fee_collection_uuid           String                          @db.VarChar(64)
+  tenant_contract_id            Int
+  tenant_id                     Int
+  room_fee_collection_histories room_fee_collection_histories[]
+  apartment_rooms               apartment_rooms                 @relation(fields: [apartment_room_id], references: [id])
+  tenant_contracts              tenant_contracts                @relation(fields: [tenant_contract_id], references: [id])
+  tenants                       tenants                         @relation(fields: [tenant_id], references: [id])
+}
+
+model tenant_contracts {
+  id                       Int                      @id @default(autoincrement())
+  apartment_room_id        Int
+  tenant_id                Int
+  pay_period               Int
+  price                    BigInt
+  electricity_pay_type     Int
+  electricity_price        BigInt
+  electricity_number_start Int
+  water_pay_type           Int
+  water_price              BigInt
+  water_number_start       Int
+  number_of_tenant_current Int
+  note                     String?
+  start_date               DateTime
+  end_date                 DateTime
+  contract_monthly_costs   contract_monthly_costs[]
+  room_fee_collections     room_fee_collections[]
+  apartment_rooms          apartment_rooms          @relation(fields: [apartment_room_id], references: [id])
+  tenants                  tenants                  @relation(fields: [tenant_id], references: [id])
+}
+
+model tenants {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(45)
+  tel                  String                 @db.VarChar(45)
+  identity_card_number String                 @db.VarChar(45)
+  email                String?                @db.VarChar(256)
+  room_fee_collections room_fee_collections[]
+  tenant_contracts     tenant_contracts[]
+}
+
+model users {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar(100)
+  email      String       @unique @db.VarChar(256)
+  apartments apartments[]
+}
+
+model water_usages {
+  id                Int             @id @default(autoincrement())
+  apartment_room_id Int
+  usage_number      Int
+  input_date        DateTime
+  apartment_rooms   apartment_rooms @relation(fields: [apartment_room_id], references: [id])
 }
