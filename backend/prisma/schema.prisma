@@ -36,6 +36,7 @@ model apartments {
   district_id     String?           @db.VarChar(256)
   ward_id         String?           @db.VarChar(256)
   address         String            @db.VarChar(256)
+  image_url       String?           
   apartment_rooms apartment_rooms[]
   owner          users             @relation(fields: [user_id], references: [id])
 }
