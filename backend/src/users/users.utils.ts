@@ -9,7 +9,8 @@ export const userMessages = {
 
     ERROR: {
         NOT_FOUND: 'User not found.',
-        ALREADY_EXISTS: 'User already exists.',
+        ALREADY_EXISTS: 'Email already exists.',
         INVALID_DATA: 'Invalid user data provided.',
     },
 };
+

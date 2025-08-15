@@ -8,9 +8,9 @@
 /backend/build
 
 # prisma
-/backend/generated/prisma
+
 /backend/prisma/seed.ts 
-/backend/prisma/migrations
+
 
 # Logs
 /backend/logs

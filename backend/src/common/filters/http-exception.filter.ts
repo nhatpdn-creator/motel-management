@@ -5,7 +5,7 @@ import {
     HttpException,
     HttpStatus,
 } from '@nestjs/common';
-import { Prisma } from 'generated/prisma';
+import { PrismaClient as Prisma } from '@prisma/client';
 import { PRISMA_ERRORS } from '../constants/prisma-errors';
 
 @Catch() 
@@ -14,16 +14,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
-
-        let status = 
-            exception instanceof HttpException
-                ? exception.getStatus()
-                : HttpStatus.INTERNAL_SERVER_ERROR;
+        let status: number;
+        let message: any;
         
-        let message = 
-            exception instanceof HttpException
-                ? exception.getResponse()
-                : 'Internal server error';
+        if (exception instanceof HttpException) {
+            status = exception.getStatus();
+            message = exception.getResponse();
+        } else {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            message = 'Internal server error';
+        }        
         
         // Convert simple string messages
         if (typeof message === 'string') {
@@ -32,17 +32,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         /**
          * Database failure handling
-         */
+         
         if (exception instanceof Prisma.PrismaClientInitializationError) {
             status = HttpStatus.SERVICE_UNAVAILABLE;
             message = {
                 message: 'Database is unavailabe at the moment. Please try again later.',
             };
-        }
+        }*/
 
         /**
          * Prisma known errors handling
-         */
+         
         if (exception instanceof Prisma.PrismaClientKnownRequestError) {
             const friendlyMessage = 
                 PRISMA_ERRORS[exception.code as keyof typeof PRISMA_ERRORS] ||
@@ -55,7 +55,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
             } else {
                 status = HttpStatus.INTERNAL_SERVER_ERROR;
             }
-        }
+        }*/
+
         /**
          * Centralized logging
          */
