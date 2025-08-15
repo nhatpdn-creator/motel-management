@@ -37,7 +37,7 @@ model apartments {
   ward_id         String?           @db.VarChar(256)
   address         String            @db.VarChar(256)
   apartment_rooms apartment_rooms[]
-  users           users             @relation(fields: [user_id], references: [id])
+  owner          users             @relation(fields: [user_id], references: [id])
 }
 
 model contract_monthly_costs {
