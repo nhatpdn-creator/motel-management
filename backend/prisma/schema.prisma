@@ -38,6 +38,7 @@ model apartments {
   image_url       String?           
   apartment_rooms apartment_rooms[]
   owner          users             @relation(fields: [user_id], references: [id])
+  @@unique([user_id, address])
 }
 
 model contract_monthly_costs {
